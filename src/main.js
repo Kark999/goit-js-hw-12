@@ -4,6 +4,7 @@ import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import errorIcon from '../src/img/octagon.svg';
 import closeIcon from '../src/img/close.svg';
+import axios from 'axios';
 
 const refs = {
   form: document.querySelector('.form'),
