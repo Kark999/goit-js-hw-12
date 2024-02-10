@@ -10,33 +10,53 @@ const refs = {
   form: document.querySelector('.form'),
   gallery: document.querySelector('.gallery'),
   loader: document.querySelector('.loader'),
+  searchMore: document.querySelector('.search-more'),
 };
 let gallery = new SimpleLightbox('.gallery a');
+// let page = data.page;
 
 refs.form.addEventListener('submit', onFormSubmit);
+refs.searchMore.addEventListener('click', onSearchMore);
+
+async function onSearchMore(e) {
+  try {
+    // page += 1;
+    const search = e.target.elements.search.value.trim();
+    refs.loader.classList.remove('hidden');
+    refs.gallery.innerHTML = '';
+    const data = await getImagesByType(search);
+    if (data.totalHits === 0) {
+      return showError(message);
+    }
+    const markup = galleryTemplate(data.hits);
+    refs.gallery.innerHTML = markup;
+    gallery.refresh();
+  } catch (error) {
+    showError(error);
+  }
+  refs.loader.classList.add('hidden');
+  // refs.form.reset();
+}
 
 async function onFormSubmit(e) {
   e.preventDefault();
-  const search = e.target.elements.search.value.trim();
-  refs.loader.classList.remove('hidden');
-  refs.gallery.innerHTML = '';
-  getImagesByType(search)
-    .then(data => {
-      if (data.totalHits === 0) {
-        return showError(message);
-      }
-      const markup = galleryTemplate(data.hits);
-      refs.gallery.innerHTML = markup;
-      gallery.refresh();
-    })
-    .catch(error => {
-      showError(error);
-    })
-    .finally(() => {
-      refs.loader.classList.add('hidden');
-    });
 
-  refs.form.reset();
+  try {
+    const search = e.target.elements.search.value.trim();
+    refs.loader.classList.remove('hidden');
+    refs.gallery.innerHTML = '';
+    const data = await getImagesByType(search);
+    if (data.totalHits === 0) {
+      return showError(message);
+    }
+    const markup = galleryTemplate(data.hits);
+    refs.gallery.insertAdjacentHTML('beforeend', markup);
+    gallery.refresh();
+  } catch (error) {
+    showError(error);
+  }
+  refs.loader.classList.add('hidden');
+  // refs.form.reset();
 }
 
 function getImagesByType(query) {
