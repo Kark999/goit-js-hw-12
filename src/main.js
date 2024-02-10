@@ -15,7 +15,7 @@ let gallery = new SimpleLightbox('.gallery a');
 
 refs.form.addEventListener('submit', onFormSubmit);
 
-function onFormSubmit(e) {
+async function onFormSubmit(e) {
   e.preventDefault();
   const search = e.target.elements.search.value.trim();
   refs.loader.classList.remove('hidden');
@@ -48,6 +48,8 @@ function getImagesByType(query) {
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: true,
+    page: 1,
+    per_page: 15,
   });
 
   const url = `${BASE_URL}?${PARAMS}`;
