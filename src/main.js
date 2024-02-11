@@ -29,8 +29,8 @@ async function onSearchMore(e) {
       return showError(message);
     }
     const markup = galleryTemplate(data.hits);
-    refs.gallery.innerHTML = markup;
-    gallery.refresh();
+    refs.gallery.insertAdjacentHTML('beforeend', markup);
+    // gallery.refresh();
   } catch (error) {
     showError(error);
   }
@@ -40,18 +40,17 @@ async function onSearchMore(e) {
 
 async function onFormSubmit(e) {
   e.preventDefault();
-
+  const search = e.target.elements.search.value.trim();
+  refs.loader.classList.remove('hidden');
+  refs.gallery.innerHTML = '';
   try {
-    const search = e.target.elements.search.value.trim();
-    refs.loader.classList.remove('hidden');
-    refs.gallery.innerHTML = '';
     const data = await getImagesByType(search);
     if (data.totalHits === 0) {
       return showError(message);
     }
     const markup = galleryTemplate(data.hits);
-    refs.gallery.insertAdjacentHTML('beforeend', markup);
-    gallery.refresh();
+    refs.gallery.innerHTML = markup;
+    // gallery.refresh();
   } catch (error) {
     showError(error);
   }
@@ -59,26 +58,20 @@ async function onFormSubmit(e) {
   // refs.form.reset();
 }
 
-function getImagesByType(query) {
-  const BASE_URL = 'https://pixabay.com/api/';
-  const API_KEY = '42141224-180b0a56c10fd436e302d680a';
-  const PARAMS = new URLSearchParams({
-    key: API_KEY,
-    q: query,
-    image_type: 'photo',
-    orientation: 'horizontal',
-    safesearch: true,
-    page: 1,
-    per_page: 15,
+async function getImagesByType(query) {
+  const url = 'https://pixabay.com/api/';
+  const response = await axios.get(url, {
+    params: {
+      key: '42141224-180b0a56c10fd436e302d680a',
+      q: query,
+      image_type: 'photo',
+      orientation: 'horizontal',
+      safesearch: true,
+      page: 1,
+      per_page: 15,
+    },
   });
-
-  const url = `${BASE_URL}?${PARAMS}`;
-
-  return fetch(url)
-    .then(res => res.json())
-    .catch(error => {
-      showError(error);
-    });
+  return response.data;
 }
 
 function imageTemplate(data) {
