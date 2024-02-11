@@ -162,6 +162,7 @@ input {
 }
 .hidden {
   display: none;
+  opacity: 0;
 }
 .search-more {
   display: flex;

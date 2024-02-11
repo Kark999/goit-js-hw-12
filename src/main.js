@@ -13,52 +13,61 @@ const refs = {
   searchMore: document.querySelector('.search-more'),
 };
 let gallery = new SimpleLightbox('.gallery a');
-// let page = data.page;
+
+let query = null;
+let page = null;
+const per_page = 15;
 
 refs.form.addEventListener('submit', onFormSubmit);
-refs.searchMore.addEventListener('click', onSearchMore);
+refs.searchMore.addEventListener('click', onGetImageByPage);
 
-async function onSearchMore(e) {
+async function onGetImageByPage(e) {
+  e.preventDefault();
+  page += 1;
+
+  refs.loader.classList.remove('hidden');
   try {
-    // page += 1;
-    const search = e.target.elements.search.value.trim();
-    refs.loader.classList.remove('hidden');
-    refs.gallery.innerHTML = '';
-    const data = await getImagesByType(search);
+    const data = await getImagesByType();
     if (data.totalHits === 0) {
       return showError(message);
     }
     const markup = galleryTemplate(data.hits);
     refs.gallery.insertAdjacentHTML('beforeend', markup);
-    // gallery.refresh();
+    gallery.refresh();
+    checkBtnStatus(data);
   } catch (error) {
     showError(error);
   }
   refs.loader.classList.add('hidden');
-  // refs.form.reset();
+  smoothScroll();
 }
 
 async function onFormSubmit(e) {
   e.preventDefault();
-  const search = e.target.elements.search.value.trim();
+  query = e.target.elements.search.value.trim();
+  page = 1;
+
   refs.loader.classList.remove('hidden');
   refs.gallery.innerHTML = '';
   try {
-    const data = await getImagesByType(search);
+    const data = await getImagesByType();
     if (data.totalHits === 0) {
-      return showError(message);
+      return showError(
+        'Sorry, there are no images matching <br/> your search query. Please try again!'
+      );
     }
     const markup = galleryTemplate(data.hits);
     refs.gallery.innerHTML = markup;
-    // gallery.refresh();
+    gallery.refresh();
+    checkBtnStatus(data);
   } catch (error) {
     showError(error);
   }
   refs.loader.classList.add('hidden');
-  // refs.form.reset();
+  refs.form.reset();
 }
 
-async function getImagesByType(query) {
+async function getImagesByType() {
   const url = 'https://pixabay.com/api/';
   const response = await axios.get(url, {
     params: {
@@ -67,8 +76,8 @@ async function getImagesByType(query) {
       image_type: 'photo',
       orientation: 'horizontal',
       safesearch: true,
-      page: 1,
-      per_page: 15,
+      page: page,
+      per_page: per_page,
     },
   });
   return response.data;
@@ -113,8 +122,8 @@ function galleryTemplate(data) {
 
 function showError(message) {
   iziToast.error({
-    message:
-      'Sorry, there are no images matching <br/> your search query. Please try again!',
+    message,
+
     position: 'topRight',
     messageColor: '#ffffff',
     messageSize: '16px',
@@ -133,4 +142,23 @@ function showError(message) {
       ],
     ],
   });
+}
+function checkBtnStatus(data) {
+  const maxPage = Math.ceil(data.totalHits / per_page);
+  const isLastPage = maxPage === page;
+  if (isLastPage) {
+    refs.searchMore.classList.add('hidden');
+    showError("We're sorry, but you've reached the end of search results.");
+  } else {
+    refs.searchMore.classList.remove('hidden');
+  }
+}
+function smoothScroll() {
+  const card = refs.gallery.firstElementChild;
+  const cardSize = card.getBoundingClientRect();
+  scrollBy({
+    behavior: 'smooth',
+    top: cardSize.height * 2,
+  });
+  console.log(cardSize);
 }
