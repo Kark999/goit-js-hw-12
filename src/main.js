@@ -52,6 +52,7 @@ async function onFormSubmit(e) {
   try {
     const data = await getImagesByType();
     if (data.totalHits === 0) {
+      refs.loader.classList.add('hidden');
       return showError(
         'Sorry, there are no images matching <br/> your search query. Please try again!'
       );
@@ -123,7 +124,6 @@ function galleryTemplate(data) {
 function showError(message) {
   iziToast.error({
     message,
-
     position: 'topRight',
     messageColor: '#ffffff',
     messageSize: '16px',
@@ -160,5 +160,4 @@ function smoothScroll() {
     behavior: 'smooth',
     top: cardSize.height * 2,
   });
-  console.log(cardSize);
 }
