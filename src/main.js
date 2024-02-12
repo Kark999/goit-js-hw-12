@@ -53,6 +53,7 @@ async function onFormSubmit(e) {
     const data = await getImagesByType();
     if (data.totalHits === 0) {
       refs.loader.classList.add('hidden');
+      refs.searchMore.classList.add('hidden');
       return showError(
         'Sorry, there are no images matching <br/> your search query. Please try again!'
       );
