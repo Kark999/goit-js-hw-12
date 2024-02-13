@@ -65,7 +65,6 @@ export function showError(message) {
 export function checkBtnStatus(data, params, btnElem) {
   const maxPage = Math.ceil(data.totalHits / params.per_page);
   const isLastPage = maxPage === params.page;
-  // console.log(refs.searchMore);
   if (isLastPage) {
     btnElem.classList.add('hidden');
     showError("We're sorry, but you've reached the end of search results.");

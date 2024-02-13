@@ -24,40 +24,18 @@ let gallery = new SimpleLightbox('.gallery a');
 refs.form.addEventListener('submit', onFormSubmit);
 refs.searchMore.addEventListener('click', onGetImageByPage);
 
-async function onGetImageByPage(e) {
-  params.page += 1;
-
-  refs.loader.classList.remove('hidden');
-  try {
-    const data = await getImagesByType(params);
-    if (data.totalHits === 0) {
-      return render.showError(message); // check and change
-    }
-    const markup = render.galleryTemplate(data.hits);
-    refs.gallery.insertAdjacentHTML('beforeend', markup);
-    gallery.refresh();
-    render.checkBtnStatus(data, params, refs.searchMore);
-  } catch (error) {
-    render.showError(error); // check and change
-  }
-  refs.loader.classList.add('hidden');
-  render.smoothScroll(refs.gallery.firstElementChild);
-}
-
 async function onFormSubmit(e) {
   e.preventDefault();
   params.q = e.target.elements.search.value;
   params.page = 1;
   refs.gallery.innerHTML = '';
   refs.searchMore.classList.add('hidden');
-  console.log(params.q.trim());
   if (!params.q.trim()) {
-    render.showError('digital world is mess'); // check and change
+    render.showError('Please put searching image name');
   } else {
     refs.loader.classList.remove('hidden');
     try {
       const data = await getImagesByType(params);
-      console.log(data.totalHits);
       if (data.totalHits === 0) {
         refs.loader.classList.add('hidden');
         render.showError(
@@ -69,13 +47,29 @@ async function onFormSubmit(e) {
       refs.gallery.innerHTML = markup;
       gallery.refresh();
       render.checkBtnStatus(data, params, refs.searchMore);
-      // const checkBtnStatusBound = render.checkBtnStatus.bind(refs);
-      // checkBtnStatusBound(data, params);
     } catch (error) {
-      render.showError(error); // check and change
-      console.log(error);
+      render.showError(error);
     }
     refs.loader.classList.add('hidden');
   }
   refs.form.reset();
+}
+async function onGetImageByPage(e) {
+  params.page += 1;
+
+  refs.loader.classList.remove('hidden');
+  try {
+    const data = await getImagesByType(params);
+    if (data.totalHits === 0) {
+      return render.showError();
+    }
+    const markup = render.galleryTemplate(data.hits);
+    refs.gallery.insertAdjacentHTML('beforeend', markup);
+    gallery.refresh();
+    render.checkBtnStatus(data, params, refs.searchMore);
+  } catch (error) {
+    render.showError(error);
+  }
+  refs.loader.classList.add('hidden');
+  render.smoothScroll(refs.gallery.firstElementChild);
 }
